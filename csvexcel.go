@@ -1,5 +1,10 @@
 package csvexcel
 
+import (
+	"fmt"
+	"log"
+)
+
 func nextColIndex(n int) string {
 	b := []byte("ABCDEFGHIJKLMNOPQRSTYUVXZ")
 	prefix := []byte{}
@@ -10,14 +15,49 @@ func nextColIndex(n int) string {
 	return string(prefix) + string(b[n])
 }
 
-type Table struct {
-	Columns []Column
-	Rows    []Row
+type table struct {
+	Columns []*Column
+	Rows    []*Row
 }
 
-func (t *Table) AddColumn(index string) {
+func New() table {
+	return table{Columns: []*Column{}, Rows: []*Row{}}
+}
+
+func (t *table) AddColumn() {
 	c := Column{Index: nextColIndex(len(t.Columns))}
-	t.Columns = append(t.Columns, c)
+	c.Name = c.Index
+	t.Columns = append(t.Columns, &c)
+
+	for _, row := range t.Rows {
+		cell := Cell{Row: row, Column: &c}
+		row.addCell(&cell)
+	}
+}
+
+func (t *table) AddRow() {
+	row := Row{Number: len(t.Rows), Cells: []*Cell{}}
+	for _, column := range t.Columns {
+		cell := Cell{Row: &row, Column: column}
+		row.addCell(&cell)
+	}
+	t.Rows = append(t.Rows, &row)
+}
+
+func (t *table) Print() {
+	line := ""
+	for _, column := range t.Columns {
+		line = fmt.Sprintf("%s%10s,", line, column.Index)
+	}
+	log.Println(line)
+
+	for _, row := range t.Rows {
+		line = ""
+		for _, cell := range row.Cells {
+			line = fmt.Sprintf("%s%10s,", line, cell.Value)
+		}
+		log.Println(line)
+	}
 }
 
 type Row struct {
@@ -26,10 +66,13 @@ type Row struct {
 	Hide   bool
 }
 
+func (r *Row) addCell(cell *Cell) {
+	r.Cells = append(r.Cells, cell)
+}
+
 type Column struct {
 	Index string
 	Name  string
-	Cells []*Cell
 	Hide  bool
 }
 

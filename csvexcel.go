@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"log"
-	"strconv"
 	"strings"
 )
 
@@ -13,16 +12,6 @@ var (
 	OutOfRange   = &Cell{Value: "Out of range"}
 	InvalidRange = &Cell{Value: "Invalid cell range"}
 )
-
-func nextColIndex(n int) string {
-	b := []byte("ABCDEFGHIJKLMNOPQRSTYUVXZ")
-	prefix := []byte{}
-	if n >= len(b) {
-		prefix = append(prefix, b[(n/len(b))-1])
-		n = n % len(b)
-	}
-	return string(prefix) + string(b[n])
-}
 
 type table struct {
 	Columns []*Column
@@ -128,62 +117,4 @@ func (t *table) Print() {
 		}
 		log.Println(line)
 	}
-}
-
-type Row struct {
-	Number int
-	Cells  []*Cell
-	Hide   bool
-}
-
-func (r *Row) addCell(cell *Cell) {
-	r.Cells = append(r.Cells, cell)
-}
-
-type Column struct {
-	pos   int
-	Index string
-	Name  string
-	Hide  bool
-}
-
-type Cell struct {
-	Row    *Row
-	Column *Column
-	Type   string
-	Value  string
-}
-
-func main() {
-
-}
-
-func toIndex(index string) (col string, row int) {
-
-	if len(index) < 2 {
-		return "", 0
-	}
-
-	s := strings.ToUpper(index)
-
-	if s[0] <= 'A' && s[0] >= 'Z' {
-		return "", 0
-	}
-	col = s[0:1]
-	r := s[1:]
-
-	if s[1] >= 'A' && s[1] <= 'Z' {
-		col = s[0:2]
-		if len(s) < 3 {
-			return "", 0
-		}
-		r = s[2:]
-
-	}
-
-	var err error
-	if row, err = strconv.Atoi(r); err != nil {
-		return "", 0
-	}
-	return col, row
 }

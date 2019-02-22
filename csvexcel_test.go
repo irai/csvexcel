@@ -66,7 +66,10 @@ Ken,Thompson,ken
 "Robert","Griesemer","gri"
 `
 
-	table, _ := ParseCSV(in)
+	table, err := ParseCSV(in)
+	if err != nil {
+		t.Error("error parsing string ", err)
+	}
 	table.Print()
 
 	if v := table.Cell("A1").Value; v != "first_name" {
@@ -81,4 +84,25 @@ Ken,Thompson,ken
 	if v := table.Cell("d4").Value; v != OutOfRange.Value {
 		t.Error("invalid value in A4 ", v)
 	}
+
+	if r := table.FindRow("b", "Pike"); r == nil || r.Cells[0].Value != "Rob" {
+		t.Error("could not find Pike ", r)
+	}
+}
+
+func TestOpen(t *testing.T) {
+	table, err := Open("/mnt/c/Users/fabio/Desktop/TEST Member Database.csv")
+	if err != nil {
+		t.Error("error parsing file ", err)
+	}
+
+	for _, c := range table.Columns {
+		c.Hide = true
+	}
+	table.Columns[3].Hide = false
+	table.Print()
+	// for _, c := range table.Columns {
+	// log.Println(*c)
+	// }
+
 }

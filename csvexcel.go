@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"os"
 	"strings"
 )
 
@@ -14,17 +15,8 @@ var (
 )
 
 type table struct {
-	Columns []*Column
+	Columns Columns
 	Rows    []*Row
-}
-
-func (t *table) toColumn(index string) *Column {
-	for _, c := range t.Columns {
-		if c.Index == index {
-			return c
-		}
-	}
-	return nil
 }
 
 func New() table {
@@ -60,6 +52,39 @@ func ParseCSV(in string) (t table, err error) {
 	return t, nil
 }
 
+func Open(filename string) (t table, err error) {
+	csvfile, err := os.Open(filename)
+	if err != nil {
+		return t, err
+	}
+	defer csvfile.Close()
+
+	t = New()
+	r := csv.NewReader(csvfile)
+	lc := 0
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if lc == 0 {
+			for range record {
+				t.AddColumn()
+			}
+		}
+		lc++
+		row := t.AddRow()
+		for i, cell := range row.Cells {
+			cell.Value = record[i]
+		}
+	}
+	return t, nil
+}
+
 func (t *table) Cell(name string) *Cell {
 	c, r := toIndex(name)
 	if c == "" || r == 0 {
@@ -71,48 +96,32 @@ func (t *table) Cell(name string) *Cell {
 		return OutOfRange
 	}
 	row := t.Rows[r]
-	col := t.toColumn(c)
+	col := t.findColumn(c)
 	if col == nil || (col != nil && col.pos >= len(row.Cells)) {
 		return OutOfRange
 	}
 	return row.Cells[col.pos]
 }
 
-func (t *table) AddColumn() *Column {
-
-	c := Column{}
-	c.pos = len(t.Columns)
-	c.Index = nextColIndex(c.pos)
-	c.Name = c.Index
-	t.Columns = append(t.Columns, &c)
-
-	for _, row := range t.Rows {
-		cell := Cell{Row: row, Column: &c}
-		row.addCell(&cell)
-	}
-	return &c
-}
-
-func (t *table) AddRow() *Row {
-	row := Row{Number: len(t.Rows), Cells: []*Cell{}}
-	for _, column := range t.Columns {
-		cell := Cell{Row: &row, Column: column}
-		row.addCell(&cell)
-	}
-	t.Rows = append(t.Rows, &row)
-	return &row
-}
-
 func (t *table) Print() {
 	line := "row/name  "
 	for _, column := range t.Columns {
+		if column.Hide == true {
+			continue
+		}
 		line = fmt.Sprintf("%s%10s,", line, column.Index)
 	}
 	log.Println(line)
 
 	for i, row := range t.Rows {
+		if row.Hide == true {
+			continue
+		}
 		line = fmt.Sprintf("  %3d", i+1)
-		for _, cell := range row.Cells {
+		for i, cell := range row.Cells {
+			if t.Columns[i].Hide == true {
+				continue
+			}
 			line = fmt.Sprintf("%s%10s,", line, cell.Value)
 		}
 		log.Println(line)

@@ -1,8 +1,11 @@
 package csvexcel
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io"
 	"log"
+	"strings"
 )
 
 func nextColIndex(n int) string {
@@ -24,7 +27,34 @@ func New() table {
 	return table{Columns: []*Column{}, Rows: []*Row{}}
 }
 
-func (t *table) AddColumn() {
+func (t *table) ParseCSV(in string) error {
+	r := csv.NewReader(strings.NewReader(in))
+
+	lc := 0
+	for {
+		record, err := r.Read()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if lc == 0 {
+			for range record {
+				t.AddColumn()
+			}
+		}
+		lc++
+		row := t.AddRow()
+		for i, cell := range row.Cells {
+			cell.Value = record[i]
+		}
+	}
+	return nil
+}
+
+func (t *table) AddColumn() *Column {
 	c := Column{Index: nextColIndex(len(t.Columns))}
 	c.Name = c.Index
 	t.Columns = append(t.Columns, &c)
@@ -33,15 +63,17 @@ func (t *table) AddColumn() {
 		cell := Cell{Row: row, Column: &c}
 		row.addCell(&cell)
 	}
+	return &c
 }
 
-func (t *table) AddRow() {
+func (t *table) AddRow() *Row {
 	row := Row{Number: len(t.Rows), Cells: []*Cell{}}
 	for _, column := range t.Columns {
 		cell := Cell{Row: &row, Column: column}
 		row.addCell(&cell)
 	}
 	t.Rows = append(t.Rows, &row)
+	return &row
 }
 
 func (t *table) Print() {

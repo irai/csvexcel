@@ -10,6 +10,9 @@ func (r *Row) addCell(cell *Cell) {
 	r.Cells = append(r.Cells, cell)
 }
 
+func (r *Row) Column(c string) {
+}
+
 func (t *table) AddRow() *Row {
 	row := Row{Number: len(t.Rows), Cells: []*Cell{}}
 	for _, column := range t.Columns {

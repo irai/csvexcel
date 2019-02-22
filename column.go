@@ -33,17 +33,44 @@ func (t *table) AddColumn() *Column {
 	return &c
 }
 
+const letters = "ABCDEFGHIJKLMNOPQRSTYUVXZ"
+
 func nextColIndex(n int) string {
-	b := []byte("ABCDEFGHIJKLMNOPQRSTYUVXZ")
+	// letters := []byte('ABCDEFGHIJKLMNOPQRSTYUVXZ')
 	prefix := []byte{}
-	if n >= len(b) {
-		prefix = append(prefix, b[(n/len(b))-1])
-		n = n % len(b)
+	if n >= len(letters) {
+		prefix = append(prefix, letters[(n/len(letters))-1])
+		n = n % len(letters)
 	}
-	return string(prefix) + string(b[n])
+	return string(prefix) + string(letters[n])
+}
+
+func str2Pos(index string) (pos int) {
+	// letters := []byte('ABCDEFGHIJKLMNOPQRSTYUVXZ')
+	if len(index) < 1 {
+		return 0
+	}
+
+	s := strings.ToUpper(index)
+
+	if s[0] < 'A' && s[0] > 'Z' {
+		return 0
+	}
+	pos = int(s[0]) - 'A'
+	if len(index) == 1 {
+		return pos
+	}
+	pos = pos * len(letters)
+
+	if s[0] < 'A' && s[0] > 'Z' {
+		return 0
+	}
+	pos = pos + int(s[1]) - 'A'
+	return pos
 }
 
 func (t *table) findColumn(index string) *Column {
+	index = strings.ToUpper(index)
 	for _, c := range t.Columns {
 		if c.Index == index {
 			return c

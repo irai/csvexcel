@@ -6,7 +6,10 @@ import (
 
 func TestColIndex(t *testing.T) {
 	for i := 0; i < 100; i++ {
-		nextColIndex(i)
+		s := nextColIndex(i)
+		if x := str2Pos(s); x != i {
+			t.Error("unexpect str2Pos ", s, x, i)
+		}
 		// log.Println("nextColIndex ", s)
 	}
 	if s := nextColIndex(100); s != "DA" {
@@ -100,7 +103,7 @@ func TestOpen(t *testing.T) {
 		c.Hide = true
 	}
 	table.Columns[3].Hide = false
-	table.Print()
+	// table.Print()
 	// for _, c := range table.Columns {
 	// log.Println(*c)
 	// }

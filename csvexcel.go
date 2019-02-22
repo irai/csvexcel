@@ -5,6 +5,34 @@ import (
 	"log"
 )
 
+func toIndex(s string) (col string, row int) {
+
+	if len(s) < 2 {
+		return "", 0
+	}
+	if s[0] <= 'A' && s[0] >= 'Z' {
+		return "", 0
+	}
+	col = s[0:1]
+	r := s[1:]
+
+	if s[1] >= 'A' && s[1] <= 'Z' {
+		col = s[0:2]
+		if len(s) < 3 {
+			return "", 0
+		}
+		r = s[2:]
+
+	}
+	
+	var err error
+	if row, err = strconv.Atoi(r); err != nil {
+		return "", 0
+	}
+	return col, row
+}
+
+
 func nextColIndex(n int) string {
 	b := []byte("ABCDEFGHIJKLMNOPQRSTYUVXZ")
 	prefix := []byte{}

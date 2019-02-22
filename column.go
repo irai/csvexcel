@@ -12,13 +12,6 @@ type Column struct {
 	Hide  bool
 }
 
-type Cell struct {
-	Row    *Row
-	Column *Column
-	Type   string
-	Value  string
-}
-
 func nextColIndex(n int) string {
 	b := []byte("ABCDEFGHIJKLMNOPQRSTYUVXZ")
 	prefix := []byte{}

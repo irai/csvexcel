@@ -3,13 +3,17 @@ package csvexcel
 import (
 	"fmt"
 	"log"
+	"strings"
 )
 
-func toIndex(s string) (col string, row int) {
+func toIndex(index string) (col string, row int) {
 
-	if len(s) < 2 {
+	if len(index) < 2 {
 		return "", 0
 	}
+
+	s := strings.ToUpper(index)
+	
 	if s[0] <= 'A' && s[0] >= 'Z' {
 		return "", 0
 	}

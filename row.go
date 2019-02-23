@@ -10,7 +10,9 @@ func (r *Row) addCell(cell *Cell) {
 	r.Cells = append(r.Cells, cell)
 }
 
-func (r *Row) Column(c string) {
+func (r *Row) Cell(col string) *Cell {
+	c := col2pos(col)
+	return r.Cells[c]
 }
 
 func (t *table) AddRow() *Row {

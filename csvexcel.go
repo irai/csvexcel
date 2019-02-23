@@ -52,7 +52,7 @@ func ParseCSV(in string) (t table, err error) {
 	return t, nil
 }
 
-func Open(filename string) (t table, err error) {
+func ParseFile(filename string) (t table, err error) {
 	csvfile, err := os.Open(filename)
 	if err != nil {
 		return t, err
@@ -83,6 +83,33 @@ func Open(filename string) (t table, err error) {
 		}
 	}
 	return t, nil
+}
+
+func (t *table) Save(filename string) error {
+	outfile, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer outfile.Close()
+
+	writer := csv.NewWriter(outfile)
+	buffer := make([]string, len(t.Columns))
+	for _, row := range t.Rows {
+		if row.Hide == true {
+			continue
+		}
+		for x := range t.Columns {
+			if t.Columns[x].Hide != true {
+				buffer[x] = row.Cells[x].Value
+			}
+		}
+		if err = writer.Write(buffer); err != nil {
+			return err
+		}
+	}
+	writer.Flush()
+
+	return nil
 }
 
 func (t *table) Cell(name string) *Cell {

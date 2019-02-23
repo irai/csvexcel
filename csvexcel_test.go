@@ -5,14 +5,15 @@ import (
 )
 
 func TestColIndex(t *testing.T) {
-	for i := 0; i < 100; i++ {
-		s := nextColIndex(i)
-		if x := str2Pos(s); x != i {
-			t.Error("unexpect str2Pos ", s, x, i)
+	for k := 0; k < 100; k++ {
+		s := pos2col(k)
+		// t.Error("i ", s, k)
+		if x := col2pos(s); x != k {
+			t.Error("unexpect str2Pos ", s, x, k)
 		}
 		// log.Println("nextColIndex ", s)
 	}
-	if s := nextColIndex(100); s != "DA" {
+	if s := pos2col(100); s != "CW" {
 		t.Error("unexpect index ", s)
 	}
 }
@@ -33,7 +34,7 @@ func TestAddColumns(t *testing.T) {
 	if len(table.Columns) != 7 || len(table.Rows) != 10 {
 		t.Error("wrong rows or column count", table.Columns, table.Rows)
 	}
-	table.Print()
+	// table.Print()
 }
 func TestIndex(t *testing.T) {
 	if col, row := toIndex("A1"); col != "A" || row != 1 {
@@ -73,7 +74,7 @@ Ken,Thompson,ken
 	if err != nil {
 		t.Error("error parsing string ", err)
 	}
-	table.Print()
+	// table.Print()
 
 	if v := table.Cell("A1").Value; v != "first_name" {
 		t.Error("invalid value in A1 ", v)

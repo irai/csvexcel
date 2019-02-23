@@ -109,7 +109,7 @@ func (t *table) Print() {
 		if column.Hide == true {
 			continue
 		}
-		line = fmt.Sprintf("%s%10s,", line, column.Index)
+		line = fmt.Sprintf("%s%10s,", line, column.col)
 	}
 	log.Println(line)
 

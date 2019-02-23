@@ -6,14 +6,14 @@ import (
 )
 
 type Column struct {
-	pos   int
-	Index string
-	Name  string
-	Hide  bool
+	pos  int
+	col  string
+	Name string
+	Hide bool
 }
 
 var (
-	InvalidColumn = Column{Index: "Invalid", Name: "Invalid"}
+	InvalidColumn = Column{col: "Invalid", Name: "Invalid"}
 )
 
 type Columns []*Column
@@ -22,8 +22,8 @@ func (t *table) AddColumn() *Column {
 
 	c := Column{}
 	c.pos = len(t.Columns)
-	c.Index = nextColIndex(c.pos)
-	c.Name = c.Index
+	c.col = pos2col(c.pos)
+	c.Name = c.col
 	t.Columns = append(t.Columns, &c)
 
 	for _, row := range t.Rows {
@@ -33,46 +33,44 @@ func (t *table) AddColumn() *Column {
 	return &c
 }
 
-const letters = "ABCDEFGHIJKLMNOPQRSTYUVXZ"
+const ascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-func nextColIndex(n int) string {
-	// letters := []byte('ABCDEFGHIJKLMNOPQRSTYUVXZ')
+func pos2col(n int) string {
 	prefix := []byte{}
-	if n >= len(letters) {
-		prefix = append(prefix, letters[(n/len(letters))-1])
-		n = n % len(letters)
+	if n >= len(ascii) {
+		prefix = append(prefix, ascii[(n/len(ascii))-1])
+		n = n % len(ascii)
 	}
-	return string(prefix) + string(letters[n])
+	return string(prefix) + string(ascii[n])
 }
 
-func str2Pos(index string) (pos int) {
-	// letters := []byte('ABCDEFGHIJKLMNOPQRSTYUVXZ')
-	if len(index) < 1 {
+func col2pos(col string) (pos int) {
+	if len(col) < 1 {
 		return 0
 	}
 
-	s := strings.ToUpper(index)
+	col = strings.ToUpper(col)
 
-	if s[0] < 'A' && s[0] > 'Z' {
+	if col[0] < 'A' && col[0] > 'Z' {
 		return 0
 	}
-	pos = int(s[0]) - 'A'
-	if len(index) == 1 {
+	pos = int(col[0]) - 'A'
+	if len(col) == 1 {
 		return pos
 	}
-	pos = pos * len(letters)
+	pos = (pos + 1) * len(ascii)
 
-	if s[0] < 'A' && s[0] > 'Z' {
+	if col[0] < 'A' && col[0] > 'Z' {
 		return 0
 	}
-	pos = pos + int(s[1]) - 'A'
+	pos = pos + int(col[1]) - 'A'
 	return pos
 }
 
-func (t *table) findColumn(index string) *Column {
-	index = strings.ToUpper(index)
+func (t *table) findColumn(col string) *Column {
+	col = strings.ToUpper(col)
 	for _, c := range t.Columns {
-		if c.Index == index {
+		if c.col == col {
 			return c
 		}
 	}

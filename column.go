@@ -12,7 +12,7 @@ type Column struct {
 }
 
 var (
-	InvalidColumn = Column{col: "Invalid"}
+	InvalidColumn = &Column{pos: -1, col: "Invalid"}
 )
 
 type Columns []*Column
@@ -81,13 +81,16 @@ func (t *table) findColumn(col string) *Column {
 	if pos == -1 {
 		if t.header != nil {
 			pos, _ := t.header.Find(col)
+			if pos == -1 {
+				return InvalidColumn
+			}
 			return t.Columns[pos]
 		}
-		return nil
+		return InvalidColumn
 	}
 
 	if pos >= len(t.Columns) {
-		return nil
+		return InvalidColumn
 	}
 	return t.Columns[pos]
 }

@@ -14,7 +14,7 @@ func (r *Row) addCell(cell *Cell) {
 func (r *Row) Cell(col string) *Cell {
 	c := r.table.findColumn(col)
 	// fmt.Println("find cell ", col, c)
-	if c == nil {
+	if c == nil || c == InvalidColumn {
 		return InvalidRange
 	}
 	return r.Cells[c.pos]

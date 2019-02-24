@@ -140,7 +140,7 @@ func (t *table) Cell(name string) *Cell {
 	}
 	row := t.Rows[r]
 	col := t.findColumn(c)
-	if col == nil || (col != nil && col.pos >= len(row.Cells)) {
+	if col == InvalidColumn || (col != nil && col.pos >= len(row.Cells)) {
 		return OutOfRange
 	}
 	return row.Cells[col.pos]

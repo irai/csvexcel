@@ -38,28 +38,28 @@ func TestAddColumns(t *testing.T) {
 	// table.Print()
 }
 func TestIndex(t *testing.T) {
-	if col, row := toIndex("A1"); col != "A" || row != 1 {
+	if col, row := split2colnumber("A1"); col != "A" || row != 1 {
 		t.Error("failed to index A1", col, row)
 	}
-	if col, row := toIndex("az1"); col != "AZ" || row != 1 {
+	if col, row := split2colnumber("az1"); col != "AZ" || row != 1 {
 		t.Error("failed to index az1", col, row)
 	}
-	if col, row := toIndex(" "); col != "" || row != 0 {
+	if col, row := split2colnumber(" "); col != "" || row != -1 {
 		t.Error("failed to index space", col, row)
 	}
-	if col, row := toIndex(""); col != "" || row != 0 {
+	if col, row := split2colnumber(""); col != "" || row != -1 {
 		t.Error("failed to index empty", col, row)
 	}
-	if col, row := toIndex("A"); col != "" || row != 0 {
+	if col, row := split2colnumber("A"); col != "" || row != -1 {
 		t.Error("failed to index A", col, row)
 	}
-	if col, row := toIndex("AAA1"); col != "" || row != 0 {
+	if col, row := split2colnumber("AAA1"); col != "" || row != -1 {
 		t.Error("failed to index AAA1", col, row)
 	}
-	if col, row := toIndex("1"); col != "" || row != 0 {
+	if col, row := split2colnumber("1"); col != "" || row != -1 {
 		t.Error("failed to index 1", col, row)
 	}
-	if col, row := toIndex("X123456789"); col != "X" || row != 123456789 {
+	if col, row := split2colnumber("X123456789"); col != "X" || row != 123456789 {
 		t.Error("failed to index X123456789", col, row)
 	}
 }

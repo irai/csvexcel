@@ -8,12 +8,11 @@ import (
 type Column struct {
 	pos  int
 	col  string
-	Name string
 	Hide bool
 }
 
 var (
-	InvalidColumn = Column{col: "Invalid", Name: "Invalid"}
+	InvalidColumn = Column{col: "Invalid"}
 )
 
 type Columns []*Column
@@ -23,7 +22,6 @@ func (t *table) AddColumn() *Column {
 	c := Column{}
 	c.pos = len(t.Columns)
 	c.col = pos2col(c.pos)
-	c.Name = c.col
 	t.Columns = append(t.Columns, &c)
 
 	for _, row := range t.Rows {
@@ -31,6 +29,16 @@ func (t *table) AddColumn() *Column {
 		row.addCell(&cell)
 	}
 	return &c
+}
+
+func (t *table) AddColumns(cols []string) {
+	if t.header == nil {
+		t.header = t.AddRow()
+	}
+	for _, name := range cols {
+		col := t.AddColumn()
+		t.header.Cells[col.pos].Value = name
+	}
 }
 
 const ascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -45,14 +53,15 @@ func pos2col(n int) string {
 }
 
 func col2pos(col string) (pos int) {
-	if len(col) < 1 {
-		return 0
+	col = strings.ToUpper(col)
+	if len(col) < 1 || len(col) > 2 { // only accept two letters for now
+		return -1
 	}
 
 	col = strings.ToUpper(col)
 
 	if col[0] < 'A' && col[0] > 'Z' {
-		return 0
+		return -1
 	}
 	pos = int(col[0]) - 'A'
 	if len(col) == 1 {
@@ -60,33 +69,39 @@ func col2pos(col string) (pos int) {
 	}
 	pos = (pos + 1) * len(ascii)
 
-	if col[0] < 'A' && col[0] > 'Z' {
-		return 0
+	if col[1] < 'A' && col[1] > 'Z' {
+		return -1
 	}
 	pos = pos + int(col[1]) - 'A'
 	return pos
 }
 
 func (t *table) findColumn(col string) *Column {
-	col = strings.ToUpper(col)
-	for _, c := range t.Columns {
-		if c.col == col {
-			return c
+	pos := col2pos(col)
+	if pos == -1 {
+		if t.header != nil {
+			pos, _ := t.header.Find(col)
+			return t.Columns[pos]
 		}
+		return nil
 	}
-	return nil
+
+	if pos >= len(t.Columns) {
+		return nil
+	}
+	return t.Columns[pos]
 }
 
-func toIndex(index string) (col string, row int) {
+func split2colnumber(index string) (col string, row int) {
 
 	if len(index) < 2 {
-		return "", 0
+		return "", -1
 	}
 
 	s := strings.ToUpper(index)
 
 	if s[0] <= 'A' && s[0] >= 'Z' {
-		return "", 0
+		return "", -1
 	}
 	col = s[0:1]
 	r := s[1:]
@@ -94,15 +109,16 @@ func toIndex(index string) (col string, row int) {
 	if s[1] >= 'A' && s[1] <= 'Z' {
 		col = s[0:2]
 		if len(s) < 3 {
-			return "", 0
+			return "", -1
 		}
 		r = s[2:]
 
 	}
 
 	var err error
-	if row, err = strconv.Atoi(r); err != nil {
-		return "", 0
+	if row, err = strconv.Atoi(r); err != nil || row == 0 {
+		// log.Println("strconv error ", err)
+		return "", -1
 	}
 	return col, row
 }

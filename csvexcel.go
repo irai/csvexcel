@@ -16,14 +16,26 @@ var (
 
 type table struct {
 	Columns Columns
+	header  *Row
 	Rows    []*Row
 }
 
-func New() table {
-	return table{Columns: []*Column{}, Rows: []*Row{}}
+func New() *table {
+	return &table{Columns: []*Column{}, Rows: []*Row{}}
 }
 
-func ParseCSV(in string) (t table, err error) {
+// SetHeader make the row number the header fields for the table
+// A value of 0 means no header row
+//
+func (t *table) SetHeader(row int) {
+	if row != 0 && row <= len(t.Rows) {
+		t.header = t.Rows[row-1]
+	} else {
+		t.header = nil
+	}
+}
+
+func ParseCSV(in string) (t *table, err error) {
 	r := csv.NewReader(strings.NewReader(in))
 
 	t = New()
@@ -48,11 +60,15 @@ func ParseCSV(in string) (t table, err error) {
 		for i, cell := range row.Cells {
 			cell.Value = record[i]
 		}
+
+		if row.table != t {
+			log.Fatal("ERROR tables are different ", &t, row.table)
+		}
 	}
 	return t, nil
 }
 
-func ParseFile(filename string) (t table, err error) {
+func ParseFile(filename string) (t *table, err error) {
 	csvfile, err := os.Open(filename)
 	if err != nil {
 		return t, err
@@ -113,13 +129,13 @@ func (t *table) Save(filename string) error {
 }
 
 func (t *table) Cell(name string) *Cell {
-	c, r := toIndex(name)
-	if c == "" || r == 0 {
+	c, r := split2colnumber(name)
+	if c == "" || r == -1 {
 		return InvalidRange
 	}
 
 	r-- // "A1" means row 0
-	if r >= len(t.Rows) {
+	if r > len(t.Rows) {
 		return OutOfRange
 	}
 	row := t.Rows[r]

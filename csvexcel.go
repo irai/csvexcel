@@ -10,8 +10,8 @@ import (
 )
 
 var (
-	OutOfRange   = &Cell{Value: "Out of range"}
-	InvalidRange = &Cell{Value: "Invalid cell range"}
+	OutOfRange   = "Out of range"
+	InvalidRange = "Invalid cell range"
 )
 
 type table struct {
@@ -24,13 +24,14 @@ func New() *table {
 	return &table{Columns: []*Column{}, Rows: []*Row{}}
 }
 
-// SetHeader make the row number the header fields for the table
-// A value of 0 means no header row
+// SetHeader set the row number to be the header row for the table. The row value can then be
+// used for for cell lookup. A value of 0 means no header row.
 //
 func (t *table) SetHeader(row int) {
 	if row != 0 && row <= len(t.Rows) {
 		t.header = t.Rows[row-1]
 	} else {
+		log.Println("Resetting header - n rows ", len(t.Rows))
 		t.header = nil
 	}
 }
@@ -131,17 +132,17 @@ func (t *table) Save(filename string) error {
 func (t *table) Cell(name string) *Cell {
 	c, r := split2colnumber(name)
 	if c == "" || r == -1 {
-		return InvalidRange
+		return &Cell{Value: InvalidRange}
 	}
 
 	r-- // "A1" means row 0
 	if r > len(t.Rows) {
-		return OutOfRange
+		return &Cell{Value: OutOfRange}
 	}
 	row := t.Rows[r]
 	col := t.findColumn(c)
 	if col == InvalidColumn || (col != nil && col.pos >= len(row.Cells)) {
-		return OutOfRange
+		return &Cell{Value: OutOfRange}
 	}
 	return row.Cells[col.pos]
 }

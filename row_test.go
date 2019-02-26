@@ -4,6 +4,38 @@ import (
 	"testing"
 )
 
+func TestAddRowWithValues(t *testing.T) {
+
+	table := New()
+	row := table.AddRowWithValues([]string{"first_name", "last_name", "username"})
+	table.SetHeader(row.Number)
+	// fmt.Println("Header ", table.header, row.Number, table.Rows)
+
+	for i := 0; i < 10; i++ {
+		table.AddRow()
+	}
+
+	table.AddColumn()
+
+	table.Rows[3].Cell("B").Value = "bob"
+	table.Cell("d11").Value = "mary"
+
+	if len(table.Columns) != 4 || len(table.Rows) != 11 {
+		t.Error("wrong rows or column count", table.Columns, table.Rows)
+		table.Print()
+	}
+	if r := table.FindRow("last_name", "bob"); r == nil || r.Number != 4 {
+		t.Error("wrong last name", table.Columns, table.Rows)
+		table.Print()
+	}
+	if r := table.FindRow("D", "mary"); r == nil || r.Number != 11 {
+		t.Error("wrong value in D", r, table.Columns, table.Rows)
+		table.Print()
+	}
+
+	// table.Print()
+}
+
 func TestFind(t *testing.T) {
 	in := `first_name,last_name,username
 "Rob","Pike",rob
@@ -23,10 +55,10 @@ Ken,Thompson,ken
 	if v := table.Cell("C3").Value; v != "ken" {
 		t.Error("invalid value in C3 ", v)
 	}
-	if v := table.Cell("A0").Value; v != InvalidRange.Value {
+	if v := table.Cell("A0").Value; v != InvalidRange {
 		t.Error("invalid value in A1 ", v)
 	}
-	if v := table.Cell("d4").Value; v != OutOfRange.Value {
+	if v := table.Cell("d4").Value; v != OutOfRange {
 		t.Error("invalid value in A4 ", v)
 	}
 

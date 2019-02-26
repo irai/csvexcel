@@ -31,16 +31,6 @@ func (t *table) AddColumn() *Column {
 	return &c
 }
 
-func (t *table) AddColumns(cols []string) {
-	if t.header == nil {
-		t.header = t.AddRow()
-	}
-	for _, name := range cols {
-		col := t.AddColumn()
-		t.header.Cells[col.pos].Value = name
-	}
-}
-
 const ascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 func pos2col(n int) string {

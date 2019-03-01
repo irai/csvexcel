@@ -1,5 +1,7 @@
 package csvexcel
 
+import log "github.com/sirupsen/logrus"
+
 type Row struct {
 	table  *table
 	Number int
@@ -15,6 +17,7 @@ func (r *Row) Cell(col string) *Cell {
 	c := r.table.findColumn(col)
 	// fmt.Println("find cell ", col, c)
 	if c == nil || c == InvalidColumn {
+		log.Info("Row.Cell invalid column name=", col)
 		return &Cell{Value: InvalidRange}
 	}
 	return r.Cells[c.pos]

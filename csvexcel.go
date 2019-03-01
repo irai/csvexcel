@@ -4,9 +4,10 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"strings"
+
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -132,16 +133,19 @@ func (t *table) Save(filename string) error {
 func (t *table) Cell(name string) *Cell {
 	c, r := split2colnumber(name)
 	if c == "" || r == -1 {
+		log.Info("table.Cell invalid column name=", name)
 		return &Cell{Value: InvalidRange}
 	}
 
 	r-- // "A1" means row 0
 	if r > len(t.Rows) {
+		log.Info("table.Cell invalid row number=", r)
 		return &Cell{Value: OutOfRange}
 	}
 	row := t.Rows[r]
 	col := t.findColumn(c)
 	if col == InvalidColumn || (col != nil && col.pos >= len(row.Cells)) {
+		log.Info("table.Cell invalid column name=", name, c)
 		return &Cell{Value: OutOfRange}
 	}
 	return row.Cells[col.pos]

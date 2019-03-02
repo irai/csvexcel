@@ -56,8 +56,8 @@ func TestAddColumn(t *testing.T) {
 
 	table.AddColumn()
 
-	if len(table.Columns) != 7 || len(table.Rows) != 10 {
-		t.Error("wrong rows or column count", table.Columns, table.Rows)
+	if len(table.Columns) != 7 || len(table.Rows()) != 10 {
+		t.Error("wrong rows or column count", table.Columns, table.rows)
 	}
 	// table.Print()
 }
@@ -76,10 +76,11 @@ Ken,Thompson,ken
 	// table.Print()
 	table.SetHeader(1)
 
-	if v := table.Rows[1].Cell("first_name").Value; v != "Rob" {
+	if v := table.Row(2).Cell("first_name").Value; v != "Rob" {
+		table.Print()
 		t.Error("invalid value in first_name ", v)
 	}
-	if v := table.Rows[1].Cell("e not valid").Value; v != InvalidRange {
+	if v := table.Row(1).Cell("e not valid"); v.Value != InvalidRange {
 		t.Error("invalid column ", v)
 	}
 

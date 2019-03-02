@@ -17,19 +17,19 @@ func TestAddRowWithValues(t *testing.T) {
 
 	table.AddColumn()
 
-	table.Rows[3].Cell("B").Value = "bob"
+	table.Row(3).Cell("B").Value = "bob"
 	table.Cell("d11").Value = "mary"
 
-	if len(table.Columns) != 4 || len(table.Rows) != 11 {
-		t.Error("wrong rows or column count", table.Columns, table.Rows)
+	if len(table.Columns) != 4 || len(table.Rows()) != 11 {
+		t.Error("wrong rows or column count", table.Columns, table.rows)
 		table.Print()
 	}
-	if r := table.FindRow("last_name", "bob"); r == nil || r.Number != 4 {
-		t.Error("wrong last name", table.Columns, table.Rows)
+	if r := table.FindRow("last_name", "bob"); r == nil || r.Number != 3 {
+		t.Error("wrong last name", table.Columns, table.rows)
 		table.Print()
 	}
 	if r := table.FindRow("D", "mary"); r == nil || r.Number != 11 {
-		t.Error("wrong value in D", r, table.Columns, table.Rows)
+		t.Error("wrong value in D", r, table.Columns, table.rows)
 		table.Print()
 	}
 
@@ -67,14 +67,14 @@ Ken,Thompson,ken
 	if v := table.Cell("A1").Value; v != "first_name" {
 		t.Error("invalid value in A1 ", v)
 	}
-	if v := table.Rows[2].Cell("username").Value; v != "ken" {
+	if v := table.Rows()[2].Cell("username").Value; v != "ken" {
 		t.Error("invalid value in username ", v)
 	}
 	if r := table.FindRow("last_name", "Pike"); r == nil || r.Cells[0].Value != "Rob" {
 		t.Error("could not find Pike ", r)
 	}
 
-	table.Rows[2].Cell("username").Value = "bob"
+	table.Rows()[2].Cell("username").Value = "bob"
 	if r := table.FindRow("username", "bob"); r == nil || r.Cell("username").Value != "bob" {
 		t.Error("could not find Bob ", r, r.Cell("username").Value)
 	}

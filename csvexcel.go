@@ -18,21 +18,35 @@ var (
 type table struct {
 	Columns Columns
 	header  *Row
-	Rows    []*Row
+	rows    []*Row
 }
 
 func New() *table {
-	return &table{Columns: []*Column{}, Rows: []*Row{}}
+	t := &table{Columns: []*Column{}, rows: []*Row{}}
+	t.AddRow() // Row zero is empty to match excel numbering
+	return t
+}
+
+func (t *table) Rows() []*Row {
+	return t.rows[1:]
+}
+
+func (t *table) Row(number int) *Row {
+	if number == 0 || number >= len(t.rows) {
+		log.Info("table.Row invalid row number ", number)
+		return nil
+	}
+	return t.rows[number]
 }
 
 // SetHeader set the row number to be the header row for the table. The row value can then be
 // used for for cell lookup. A value of 0 means no header row.
 //
 func (t *table) SetHeader(row int) {
-	if row != 0 && row <= len(t.Rows) {
-		t.header = t.Rows[row-1]
+	if row != 0 && row <= len(t.Rows()) {
+		t.header = t.rows[row]
 	} else {
-		log.Println("Resetting header - n rows ", len(t.Rows))
+		log.Println("Resetting header to nil - n rows ", row, len(t.Rows()))
 		t.header = nil
 	}
 }
@@ -112,7 +126,7 @@ func (t *table) Save(filename string) error {
 
 	writer := csv.NewWriter(outfile)
 	buffer := make([]string, len(t.Columns))
-	for _, row := range t.Rows {
+	for _, row := range t.Rows() {
 		if row.Hide == true {
 			continue
 		}
@@ -137,12 +151,12 @@ func (t *table) Cell(name string) *Cell {
 		return &Cell{Value: InvalidRange}
 	}
 
-	r-- // "A1" means row 0
-	if r > len(t.Rows) {
+	// r-- // "A1" means row 0
+	if r > len(t.Rows()) {
 		log.Info("table.Cell invalid row number=", r)
 		return &Cell{Value: OutOfRange}
 	}
-	row := t.Rows[r]
+	row := t.rows[r]
 	col := t.findColumn(c)
 	if col == InvalidColumn || (col != nil && col.pos >= len(row.Cells)) {
 		log.Info("table.Cell invalid column name=", name, c)
@@ -161,7 +175,7 @@ func (t *table) Print() {
 	}
 	log.Println(line)
 
-	for i, row := range t.Rows {
+	for i, row := range t.Rows() {
 		if row.Hide == true {
 			continue
 		}

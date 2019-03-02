@@ -24,11 +24,15 @@ func (t *table) AddColumn() *Column {
 	c.col = pos2col(c.pos)
 	t.Columns = append(t.Columns, &c)
 
-	for _, row := range t.Rows {
+	for _, row := range t.Rows() {
 		cell := Cell{Row: row, Column: &c}
 		row.addCell(&cell)
 	}
 	return &c
+}
+
+func (c *Column) Label() string {
+	return c.col
 }
 
 const ascii = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

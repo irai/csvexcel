@@ -18,14 +18,15 @@ Ken,Thompson,ken
 	}
 	// table.Print()
 
-	if v := table.Cell("A1").Value; v != "first_name" {
+	if v := table.Cell("A1"); v.Value != "first_name" {
+		table.Print()
 		t.Error("invalid value in A1 ", v)
 	}
 	if v := table.Cell("C3").Value; v != "ken" {
 		t.Error("invalid value in C3 ", v)
 	}
 	if v := table.Cell("A0").Value; v != InvalidRange {
-		t.Error("invalid value in A1 ", v)
+		t.Error("invalid value in A0 ", v)
 	}
 	if v := table.Cell("d4").Value; v != OutOfRange {
 		t.Error("invalid value in A4 ", v)
@@ -37,7 +38,7 @@ Ken,Thompson,ken
 }
 
 func TestParseFile(t *testing.T) {
-	table, err := ParseFile("/mnt/c/Users/fabio/Desktop/TEST Member Database.csv")
+	table, err := ParseFile("testdata/members.csv")
 	if err != nil {
 		t.Error("error parsing file ", err)
 	}
@@ -78,10 +79,10 @@ Ken,Thompson,ken
 	}
 	// t2.Print()
 
-	for i := range t1.Rows {
+	for i := range t1.Rows() {
 		for x := range t1.Columns {
-			if t1.Rows[i].Cells[x].Value != t2.Rows[i].Cells[x].Value {
-				t.Error("cells dont match ", i, x, t1.Rows[i].Cells[x].Value, t2.Rows[i].Cells[x].Value)
+			if t1.Rows()[i].Cells[x].Value != t2.Rows()[i].Cells[x].Value {
+				t.Error("cells dont match ", i, x, t1.Rows()[i].Cells[x].Value, t2.Rows()[i].Cells[x].Value)
 			}
 		}
 	}

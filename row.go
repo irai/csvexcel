@@ -24,12 +24,12 @@ func (r *Row) Cell(col string) *Cell {
 }
 
 func (t *table) AddRow() *Row {
-	row := Row{table: t, Number: len(t.Rows) + 1, Cells: []*Cell{}}
+	row := Row{table: t, Number: len(t.rows), Cells: []*Cell{}}
 	for _, column := range t.Columns {
 		cell := Cell{Row: &row, Column: column}
 		row.addCell(&cell)
 	}
-	t.Rows = append(t.Rows, &row)
+	t.rows = append(t.rows, &row)
 	return &row
 }
 
@@ -63,7 +63,7 @@ func (t *table) FindRow(col string, value string) *Row {
 		return nil
 	}
 
-	for _, row := range t.Rows {
+	for _, row := range t.Rows() {
 		if row.Cells[c.pos].Value == value {
 			return row
 		}

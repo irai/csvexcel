@@ -12,7 +12,7 @@ simplify csv operations like:
 ## Getting started
 Simply import csvexcel and go modules will add the rest to your go.mod file.
 ```golang
-	import "github.com/irai/csvexcel
+	import "github.com/irai/csvexcel"
 ```
 
 To load a CSV file use:
@@ -82,5 +82,4 @@ log.Error("Invalid range")
 ```
 
 ## Limitations
-The library is in use with files containing tens of thousands of records however the library manipulate the tables 
-in memory so you are limited by the memory available. Lots of optimisations could be done to reduce the memory footprint.
+The library works in memory so you are limited by the memory available on your computer or server. Lots of optimisations could be done to reduce the memory footprint.

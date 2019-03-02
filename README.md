@@ -4,17 +4,18 @@ csvexcel is a csv library with excel like table manipulation. It provide simple 
 simplify csv operations like:
 - read and access cells in a CSV file i.e. table.Cell("A1)
 - transform, search and update any cell in table using Excel like coordinates
-- support for excel like header row
-- hide rows or columsn an 
-- write the output to another table
-- automatically adjust cells in rows so all rows have the same number of cells
+- support for excel like header row and lookup by header
+- hide rows or columsn to easily delete from output file
+- write the table to a file
+- automatically adjust columns in rows so all rows have the same number of cells
 
-To use simply import and go modules should add the module to your go.mod file.
+## Getting started
+Simply import csvexcel and go modules will add the rest to your go.mod file.
 ```golang
 	import "github.com/irai/csvexcel
 ```
 
-To create or load a CSV table use:
+To load a CSV file use:
 ```golang
 // Load file
 table, err := csvexcel.ParseFile("filename")
@@ -23,14 +24,14 @@ table.Cell("a2").Value = "new value"
 err = table.Save("./changed.csv")
 ```
 
-To parse from a string CSV
+To parse from a CSV string
 ```
 in := `first_name,last_name,username
 "Rob","Pike",rob
 Ken,Thompson,ken
 "Robert","Griesemer","gri"
 `
-table, err := csvexcel.ParseCSV(in string)
+table, err := csvexcel.ParseCSV(in)
 table.Row(2).Hide = true // exclude row 2 in Save() or Print()
 err = table.Save("./changed.csv")
 ```
@@ -70,8 +71,8 @@ table.Cell("d2").Value = "new column value"
 ```
 
 ## Error handling
-The methods for cell lookup always return a valid pointer but to an invalid cell if the
-cell coordinate are invalid or out of range. This has proven useful for quick transformations.
+Methods for cell lookup always return a valid pointer. If the coordinate is invalid or out of range the 
+value will be set to either csvexcel.OutOfRange or csvexcel.InvalidRange. This has proven useful for quick transformations.
 
 ```golang
 table.New()
@@ -80,5 +81,6 @@ log.Error("Invalid range")
 }
 ```
 
-
-
+## Limitations
+The library is in use with files containing tens of thousands of records however the library manipulate the tables 
+in memory so you are limited by the memory available. Lots of optimisations could be done to reduce the memory footprint.

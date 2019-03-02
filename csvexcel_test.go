@@ -38,7 +38,7 @@ Ken,Thompson,ken
 }
 
 func TestParseFile(t *testing.T) {
-	table, err := ParseFile("testdata/members.csv")
+	table, err := ParseFile("testdata/list.csv")
 	if err != nil {
 		t.Error("error parsing file ", err)
 	}

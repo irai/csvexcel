@@ -89,4 +89,4 @@ log.Error("Invalid range")
 
 ## Limitations
 * The library works in memory so you are limited by the memory available on your computer or server. Lots of optimisations could be done to reduce the memory footprint.
-* goroutines unsafe - it assumes a single goroutine accessing the table
+* assumes a single goroutine accessing the table

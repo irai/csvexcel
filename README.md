@@ -73,10 +73,13 @@ table.Cell("d2").Value = "new column value"
 ## Error handling
 Methods for cell lookup always return a valid pointer. If the coordinate is invalid or out of range the 
 value will be set to either `csvexcel.OutOfRange` or `csvexcel.InvalidRange`. This eliminates the need to check for `nil` when doing simple transformations. 
+Invalid cell lookups are captured in an error table `table.Errors` that you can check or print. 
+`table.Errors` is a CSV table with two columns: Error Description and lookup value
 
 ```golang
-table.New()
+table := csvexcel.New()
 table.Cell("k11").Value = "new value"  // this will create an orphan cell but won't segfault
+table.Errors.Print() // print the errors table
 
 // you can test for it if you like
 if c := table.Cell("D10"); c.Value == csvexcel.OutOfRange || c.Value == csv.InvalidRange {
@@ -85,4 +88,5 @@ log.Error("Invalid range")
 ```
 
 ## Limitations
-The library works in memory so you are limited by the memory available on your computer or server. Lots of optimisations could be done to reduce the memory footprint.
+. The library works in memory so you are limited by the memory available on your computer or server. Lots of optimisations could be done to reduce the memory footprint.
+. goroutines unsafe - it assumes a single goroutine accessing the table

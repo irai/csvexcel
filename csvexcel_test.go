@@ -87,3 +87,31 @@ Ken,Thompson,ken
 		}
 	}
 }
+
+func TestErrors(t *testing.T) {
+	table := New()
+	table.Cell("B1").Value = "new name"
+	if len(table.Errors.Rows()) != 1 {
+		t.Error("failed to log error B1", len(table.Errors.Rows()))
+		table.Errors.Print()
+	}
+
+	row := table.AddRowWithValues([]string{"cell A row 1", "cell B row 1"})
+	table.Cell("A1").Value = "changed1"
+	row.Cell("B").Value = "changed2"
+	if len(table.Errors.Rows()) != 1 {
+		t.Error("failed to log error A1 and B", len(table.Errors.Rows()))
+		table.Errors.Print()
+	}
+
+	table.Cell("B3").Value = "invalid line"
+	table.Cell("C3").Value = "invalid column"
+	table.Cell("aa3445z").Value = "invalid"
+	row.Cell("C").Value = "invalid column"
+
+	if len(table.Errors.Rows()) != 5 {
+		t.Error("failed to log error B1", len(table.Errors.Rows()))
+		table.Errors.Print()
+	}
+	// table.Errors.Print()
+}

@@ -25,7 +25,7 @@ func (t *table) AddColumn() *Column {
 	t.Columns = append(t.Columns, &c)
 
 	for _, row := range t.Rows() {
-		cell := Cell{Row: row, Column: &c}
+		cell := Cell{}
 		row.addCell(&cell)
 	}
 	return &c
@@ -114,7 +114,6 @@ func split2colnumber(index string) (col string, row int) {
 
 	var err error
 	if row, err = strconv.Atoi(r); err != nil || row == 0 {
-		// log.Println("strconv error ", err)
 		return "", -1
 	}
 	return col, row

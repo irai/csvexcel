@@ -4,10 +4,9 @@ import (
 	"encoding/csv"
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -19,11 +18,16 @@ type table struct {
 	Columns Columns
 	header  *Row
 	rows    []*Row
+	Errors  *table
 }
 
 func New() *table {
 	t := &table{Columns: []*Column{}, rows: []*Row{}}
 	t.AddRow() // Row zero is empty to match excel numbering
+	t.Errors = &table{Columns: []*Column{}, rows: []*Row{}}
+	t.Errors.AddRow()    // Row zero is empty to match excel numbering
+	t.Errors.AddColumn() // store invalid cell name
+	t.Errors.AddColumn() // store invalid cell value
 	return t
 }
 
@@ -33,7 +37,8 @@ func (t *table) Rows() []*Row {
 
 func (t *table) Row(number int) *Row {
 	if number == 0 || number >= len(t.rows) {
-		log.Info("table.Row invalid row number ", number)
+		t.Errors.AddRowWithValues([]string{"Invalid row number in table.Row()", string(number)})
+		// log.Println("table.Row invalid row number ", number)
 		return nil
 	}
 	return t.rows[number]
@@ -41,14 +46,15 @@ func (t *table) Row(number int) *Row {
 
 // SetHeader set the row number to be the header row for the table. The row value can then be
 // used for for cell lookup. A value of 0 means no header row.
+// Return pointer to header Row or nil if no header
 //
-func (t *table) SetHeader(row int) {
+func (t *table) SetHeader(row int) *Row {
 	if row != 0 && row <= len(t.Rows()) {
 		t.header = t.rows[row]
 	} else {
-		log.Println("Resetting header to nil - n rows ", row, len(t.Rows()))
-		t.header = nil
+		t.header = nil // zero or invalid row - reset header
 	}
+	return t.header
 }
 
 func ParseCSV(in string) (t *table, err error) {
@@ -147,19 +153,18 @@ func (t *table) Save(filename string) error {
 func (t *table) Cell(name string) *Cell {
 	c, r := split2colnumber(name)
 	if c == "" || r == -1 {
-		log.Info("table.Cell invalid column name=", name)
+		t.Errors.AddRowWithValues([]string{"Invalid column name in table.Cell()", name})
 		return &Cell{Value: InvalidRange}
 	}
 
-	// r-- // "A1" means row 0
 	if r > len(t.Rows()) {
-		log.Info("table.Cell invalid row number=", r)
+		t.Errors.AddRowWithValues([]string{"Row out of range in table.Cell()", name})
 		return &Cell{Value: OutOfRange}
 	}
 	row := t.rows[r]
 	col := t.findColumn(c)
 	if col == InvalidColumn || (col != nil && col.pos >= len(row.Cells)) {
-		log.Info("table.Cell invalid column name=", name, c)
+		t.Errors.AddRowWithValues([]string{"Column out of range in table.Cell()", name})
 		return &Cell{Value: OutOfRange}
 	}
 	return row.Cells[col.pos]

@@ -1,7 +1,5 @@
 package csvexcel
 
-import log "github.com/sirupsen/logrus"
-
 type Row struct {
 	table  *table
 	Number int
@@ -15,9 +13,8 @@ func (r *Row) addCell(cell *Cell) {
 
 func (r *Row) Cell(col string) *Cell {
 	c := r.table.findColumn(col)
-	// fmt.Println("find cell ", col, c)
 	if c == nil || c == InvalidColumn {
-		log.Info("Row.Cell invalid column name=", col)
+		r.table.Errors.AddRowWithValues([]string{"Invalid column in row.Cell()", col})
 		return &Cell{Value: InvalidRange}
 	}
 	return r.Cells[c.pos]
@@ -25,8 +22,8 @@ func (r *Row) Cell(col string) *Cell {
 
 func (t *table) AddRow() *Row {
 	row := Row{table: t, Number: len(t.rows), Cells: []*Cell{}}
-	for _, column := range t.Columns {
-		cell := Cell{Row: &row, Column: column}
+	for range t.Columns {
+		cell := Cell{}
 		row.addCell(&cell)
 	}
 	t.rows = append(t.rows, &row)

@@ -40,7 +40,7 @@ To create a CSV table from scratch
 ```
 table, err := csvexcel.New()
 // You can pass row cells as slice
-table.AddRowWithFields([]string{"first name", "last name", "username" })
+table.AddRowWithValues([]string{"first name", "last name", "username" })
 table.SetHeader(1)  // First row is number 1 as in Excel
 
 // or add an empty row

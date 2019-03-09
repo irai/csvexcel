@@ -2,6 +2,7 @@ package csvexcel
 
 import (
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -110,15 +111,18 @@ func ParseFile(filename string) (t *table, err error) {
 		}
 
 		if lc == 0 {
+			if len(record) >= 702 {
+				return nil, errors.New(fmt.Sprintf("Too many columns max columns 702 - total columns in table %d", len(record)))
+			}
 			for range record {
 				t.AddColumn()
 			}
 		}
 		lc++
-		row := t.AddRow()
-		for i, cell := range row.Cells {
-			cell.Value = record[i]
-		}
+		t.AddRowWithValues(record)
+		// for i, cell := range row.Cells {
+		// cell.Value = record[i]
+		// }
 	}
 	return t, nil
 }

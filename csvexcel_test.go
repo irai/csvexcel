@@ -115,3 +115,22 @@ func TestErrors(t *testing.T) {
 	}
 	// table.Errors.Print()
 }
+
+func TestParseBigFile(t *testing.T) {
+	table, err := ParseFile("testdata/FL_insurance_sample1.csv")
+	if err != nil {
+		t.Error("error parsing file ", err)
+	}
+
+	for _, c := range table.Columns {
+		c.Hide = true
+	}
+	table.Columns[3].Hide = false
+
+	if len(table.Rows()) != 36635 || table.Row(36635).Cell("O").Value != "-82.77459" {
+		t.Error("error in line count  ", len(table.Rows()), table.Cell("O36635").Value)
+	}
+	// for i := 1; i < 1000; i++ {
+	// log.Println("row i=", i, "value ", table.Rows()[i].Cell("A").Value)
+	// }
+}
